@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html lang="en-us" role="application">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#fff" />
+
+    <title>MSC - KPI</title>
+
+    @{
+        HtmlHelper.UnobtrusiveJavaScriptEnabled = true;
+    }
+
+    <link rel="stylesheet" href="/Content/bootstrap.min.css" />
+    <link rel="preload" as="style" href="~/Content/Site.css" onload="this.rel='stylesheet'">
+    <link rel="stylesheet" as="style" href="~/Content/Site.css">
+    <link rel="manifest" href="~/manifest.json">
+    <link rel="icon" sizes="192x192" href="/logo.png" />
+    <link rel="icon" type="image/png" href="~/Content/images/logo.png" />
+    <link href="https://use.fontawesome.com/releases/v5.0.8/css/all.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/Content/chosen.min.css" />
+
+    <link href="~/Content/pace-theme-center-simple.css" rel="stylesheet" /> 
+</head>
+<body id="main" role="main">
+
+    <script src="~/Scripts/jquery.min.js"></script>
+    <script src="~/Scripts/chosen.jquery.min.js"></script>
+    <script src="~/Scripts/pace.min.js"></script>
+
+    <noscript>
+        <a class="navbar-brand" href="#">
+            <img src="~/banner.png" alt="MSC - VESSEL POSITION" class="rounded" role="img" />
+        </a>
+    </noscript>
+
+    <div class="container-fluid body-content animate-bottom">
+        @Html.Partial("_Header")
+        <div class="">
+            @RenderBody()
+        </div>
+        <header class="navbar fixed-bottom navbar-expand-sm navbar-dark bg-warning"></header>
+    </div>
+
+    <script type="text/javascript">
+        //$('select').chosen();
+    </script>
+
+    <script src="~/Scripts/bootstrap.min.js" type="text/javascript"></script>
+    <script src="~/Scripts/DataTables/DataTables-1.10.16/js/jquery.dataTables.min.js" type="text/javascript"></script>
+    <script src="~/Scripts/Chart.min.js" type="text/javascript"></script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

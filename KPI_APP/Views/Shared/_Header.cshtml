@@ -1,0 +1,28 @@
+﻿@using Microsoft.AspNet.Identity
+<form action="/" method="post" enctype="multipart/form-data">
+    <header class="text-center navbar">
+
+        <a class="navbar-brand" href="~/">
+            <img src="~/banner.png" alt="MSC - VESSEL POSITION" class="rounded" role="img" />
+        </a>
+
+        @Html.Partial("_Menu")
+
+        <nav class="navbar navbar-toggleable-md navbar-light bg-faded">
+            @if (Request.IsAuthenticated)
+            {
+                <div>
+                    <i class="fa fa-user"></i> @User.Identity.Name , <a class="btn btn-link" href="/account/logoff"> Log off <i class="fas fa-sign-out-alt"></i></a>
+                </div>
+            }
+            &nbsp;
+
+            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="button" aria-pressed="false" autocomplete="off" onclick="openNav()"
+                    data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </nav>
+
+    </header>
+</form>
+

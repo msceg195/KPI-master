@@ -1,0 +1,167 @@
+﻿@model IEnumerable<KPI_APP.Models.Department>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="body-content">
+
+    <div class="card">
+        <div class="card-header">
+
+            <div class="text-danger">
+                <i class="fa fa-envelope"></i> Send Email to Employees to fill KPI
+                <button id="btnEmail" class="btn btn-outline-success" onclick="send()">
+                    <i class="fa fa-paper-plane"></i> Send
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <ul class="list-group" role="tablist">
+                <li class="list-group-item list-group-item-action">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text" id="btnGroupAddon"><i class="fa fa-search"></i></div>
+                        </div>
+                        <input type="search" onkeyup="search()" placeholder="Search for Department ..." id="txtSearch" class="form-control"
+                               aria-label="Search for Department ..." aria-describedby="btnGroupAddon" />
+                    </div>
+                </li>
+            </ul>
+            <p></p>
+            <ul class="list-group" role="tablist" id="lstDepartments">
+
+                @foreach (var item in Model)
+                {
+
+                    if (item.AspNetUsers.Count > 0)
+                    {
+                        <li class="list-group-item list-group-item-action">
+
+                            <div class="form-inline m-3">
+                                <a class="btn btn-link col-3 text-left" data-toggle="collapse" href="#@item.ID" role="button" aria-expanded="false" aria-controls="@item.ID">
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </a>
+                                @Html.DropDownListFor(modelItem => item.ParentID, new SelectList(ViewBag.Department, "ID", "Name", item.ParentID), "Choose Department", new { @class = "form-control col-2", id = "cbo" + item.ID, onchange = "saveParent(this.value," + item.ID + ")" })
+                            </div>
+
+                            <div class="collapse" id="@item.ID">
+
+                                @foreach (var user in item.AspNetUsers)
+                                {
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" checked="@user.IsPIC" id="id_@user.UserID" name="@user.UserID" onchange="save(this)">
+                                        <label class="custom-control-label" for="id_@user.UserID">@user.UserName</label>
+                                    </div>
+                                }
+
+                                @if (item.AspNetUsers.Count > 0)
+                                {<hr />}
+
+                            </div>
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function save(item) {
+        var id = item.id.replace("id_", "");
+        var depid = item.id.replace("id_", "");
+
+        $.ajax({
+            type: "POST",
+            url: "/Departments/Save",
+            data: { "id": id , "isPIC": item.checked},
+            success: function (result) {
+                $('#myModal').modal('hide');
+                $('.alert-success').show();
+                $('.alert-danger').hide();
+            },
+            error: function (xhr) {
+                $('#myModal').modal('hide');
+                $('.alert-danger').show();
+                $('.alert-success').hide();
+            }
+
+        });
+    }
+
+    function saveParent(parentid, depid) {
+        $.ajax({
+            type: "POST",
+            url: "/Departments/SaveParent",
+            data: { "parentid": parentid, "depid": depid },
+            success: function (result) {
+                $('#myModal').modal('hide');
+                $('.alert-success').show();
+                $('.alert-danger').hide();
+            },
+            error: function (xhr) {
+                $('#myModal').modal('hide');
+                $('.alert-danger').show();
+                $('.alert-success').hide();
+            }
+
+        });
+    }
+
+    function search() {
+        // Declare variables
+        var input, filter, ul, li, a, i;
+        input = document.getElementById('txtSearch');
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("lstDepartments");
+        li = ul.getElementsByTagName('li');
+
+        var isfound = false;
+
+        // Loop through all list items, and hide those who don't match the search query
+        for (i = 0; i < li.length; i++) {
+            a = li[i].getElementsByTagName("a")[0];
+
+            var td = li[i].getElementsByTagName("td");
+
+            //debugger;
+
+            //for (j = 0; j < td.length; j++) {
+            //    if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+            //        td[j].parentElement.style.display = "";
+            //        isfound = true;
+            //    } else {
+            //        td[j].parentElement.style.display = "none";
+            //    }
+            //}
+
+            if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+            }
+
+            if (isfound) {
+                $('.collapse').collapse();
+
+                $('body').scrollspy({ target: a.href })
+            }
+
+        }
+    }
+
+    function send() {
+        $.ajax({
+            type: "POST",
+            url: "/Departments/Send",
+            data: null,
+            success: function (result) {
+                if (result == "done") console.log("done");
+            },
+            error: function (xhr) {
+            }
+
+        });
+    }
+</script>

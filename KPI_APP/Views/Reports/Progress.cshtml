@@ -1,0 +1,111 @@
+﻿<canvas id="myChart" style="min-width:1920px;min-height:1050px;" height="1050" width="1920"></canvas>
+
+<script src="/Scripts/jquery.min.js"></script>
+
+<script src="/Scripts/Chart.min.js" type="text/javascript"></script>
+
+
+<script type="text/javascript">
+
+        $.ajax({
+            type: "POST",
+            url: "/Reports/CurrentProgress",
+            data: null,
+            success: function (result) {
+                loadChart(result);
+            },
+            error: function (xhr) {
+            }
+        });
+
+        function send(canvas) {
+            var canvas = document.getElementById("myChart");
+            $.ajax({
+                type: "POST",
+                url: "/Reports/Send",
+                data: { base64String: canvas.toDataURL() },
+                success: function (result) {
+
+                },
+                error: function (xhr) { }
+            });
+        }
+
+        function loadChart(data) {
+
+            var ctx = document.getElementById("myChart").getContext('2d');
+
+            var labels = [];
+            var values = [];
+            var finshed = [];
+            for (var i = 0; i < data.length; i++) {
+                labels.push(data[i]["name"]);
+                values.push(data[i]["count"]);
+                finshed.push(data[i]["done"]);
+            }
+
+            var chartOptions = {
+                scales: {
+                    xAxes: [{
+                        barPercentage: 1,
+                        categoryPercentage: 0.6
+                    }],
+                    yAxes: [{
+                        id: "y-axis-density",
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                },
+                animation: {
+                    onComplete: function (animation) {
+                         //$('header').hide();
+                         send();
+                         //window.close();
+                    }
+                }
+            };
+
+            //if (myChart !== undefined) myChart.destroy();
+
+            Chart.plugins.register({
+                beforeDraw: function (chartInstance) {
+                    var ctx = chartInstance.chart.ctx;
+                    ctx.fillStyle = "white";
+                    ctx.fillRect(0, 0, chartInstance.chart.width, chartInstance.chart.height);
+                },
+                afterDraw: function (chartInstance) {
+                    //var ctx = chartInstance.toBase64Image();
+                    //send(ctx);
+                }
+            });
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '# of KPI',
+                        data: values,
+                        responsive: false,
+                        maintainAspectRatio: true,
+                        backgroundColor: 'gray',
+                        borderColor: "gray",
+
+                        borderWidth: 0
+                    }, {
+                        label: '# of Finished',
+                        data: finshed,
+                        backgroundColor: '#ffc107',
+                        borderColor: '#ffc107',
+                        borderWidth: 0
+                    }]
+                },
+                options: chartOptions
+            });
+        }
+
+        $(document).ready(function () {
+            $('header').hide(); 
+        });
+</script> 

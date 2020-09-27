@@ -1,0 +1,236 @@
+﻿@model IEnumerable<KPI_APP.Models.KPI_Item>
+
+@{
+    var date = (DateTime)ViewBag.Date;
+    var users = ViewBag.Users;
+    var departments = ViewBag.Departments as List<KPI_APP.Models.Excel_Department>;
+}
+
+<div class="body-content">
+    <div class="form-group" style="overflow-y:auto;">
+
+        <ul class="list-group" role="tablist">
+            <li class="list-group-item list-group-item-action">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text" id="btnGroupAddon"><i class="fa fa-search"></i></div>
+                    </div>
+                    <input type="search" onkeyup="search()" placeholder="Search for Department ..." id="txtSearch" class="form-control"
+                           aria-label="Search for Department ..." aria-describedby="btnGroupAddon" />
+                    @Html.DropDownList("cboUsers", new SelectList(ViewBag.Users, "UserID", "UserName", null), "Choose User",
+                                                                                           new
+                                                                                           {
+                                                                                               @class = "form-control select js-example-basic-single",
+                                                                                               id = "cboUsers",
+                                                                                               onchange = "filter()"
+                                                                                           })
+                </div>
+            </li>
+        </ul>
+        <p></p>
+
+        <ul class="list-group" role="tablist" id="lstDepartments">
+            <li class="list-group-item list-group-item-action">
+
+                @{
+                    var items = Model.ToList();
+                }
+                @if (items.Count() > 0)
+                {
+                    <table class="table table-responsive-md table-responsive-sm" id="table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Remarks</th>
+                                <th>User</th>
+                                <th>Close</th>
+                                <th>IBox</th>
+                                <th>Productivity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in items)
+                            {
+                            <tr>
+
+                                <td>
+                                    <label>
+                                        @item.Title
+                                        <input type="hidden" value="@item.Row" />
+                                    </label>
+                                </td>
+                                <td>
+                                    <label>@item.Remarks</label>
+                                </td>
+
+                                <td>
+                                    @Html.DropDownListFor(modelItem => item.UserID, new SelectList(ViewBag.Users, "UserID", "UserName",
+                                                          item.UserID.ToString()), "Choose User",
+                                                          new
+                                                          {
+                                                              @class = "form-control select js-example-basic-single",
+                                                              id = "cbo" + item.UserID,
+                                                              onchange = "SaveUser(" + item.Id + " , this.value)"
+                                                          })
+                                </td>
+                                <td class="text-center">
+                                    <div class="custom-control custom-checkbox" style="width: 20px; margin: 0px auto;">
+                                        <input type="checkbox" class="custom-control-input" checked="@item.IsClose" id="id_@item.Id" name="@item.Id" onchange="CloseItem(@item.Id, this.checked)">
+                                        <label class="custom-control-label" for="id_@item.Id"></label>
+                                    </div>
+                                </td>
+
+                                <td class="text-center">
+                                    <div class="custom-control custom-checkbox" style="width: 20px; margin: 0px auto;">
+                                        <input type="checkbox" class="custom-control-input" checked="@item.HasIbox" id="id_@item.Id@item.UserID" name="@item.Id@item.UserID" onchange="Assign(@item.Id, @item.UserID,this.checked)">
+                                        <label class="custom-control-label" for="id_@item.Id@item.UserID"></label>
+                                    </div>
+                                </td>
+
+                                <td class="text-center">
+                                    <div class="custom-control custom-checkbox" style="width: 20px; margin: 0px auto;">
+                                        <input type="checkbox" class="custom-control-input" checked="@item.HasProductivity" id="idp_@item.Id@item.UserID" name="@item.Id@item.UserID" onchange="Productivity(@item.Id, @item.UserID,this.checked)">
+                                        <label class="custom-control-label" for="idp_@item.Id@item.UserID"></label>
+                                    </div>
+                                </td>
+
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </li>
+        </ul>
+    </div>
+</div>
+<script type="text/javascript">
+    function SaveUser(itemid, userid) {
+        //
+
+        $.ajax({
+            type: "POST",
+            url: "/Departments/SaveUser",
+            data: { "ItemId": itemid, "UserId": userid },
+            success: function (result) {
+                $('#myModal').modal('hide');
+                $('.alert-success').show();
+                $('.alert-danger').hide();
+            },
+            error: function (xhr) {
+                $('#myModal').modal('hide');
+                $('.alert-danger').show();
+                $('.alert-success').hide();
+            }
+
+        });
+    }
+
+    function CloseItem(itemid, isclose) {
+        $.ajax({
+            type: "POST",
+            url: "/Departments/CloseItem",
+            data: { "ItemId": itemid, "IsClose": isclose },
+            success: function (result) {
+
+                $('.alert-success').show();
+                $('.alert-danger').hide();
+            },
+            error: function (xhr) {
+                $('#myModal').modal('hide');
+                $('.alert-danger').show();
+                $('.alert-success').hide();
+            }
+
+        });
+    }
+
+    function Assign(itemid,userid, hasibox) {
+
+        debugger;
+
+        var txt= '#txt_' + itemid + userid;
+
+        $.ajax({
+            type: "POST",
+            url: "/Departments/AssignIbox",
+            data: { "ItemId": itemid, "UserId": userid, "HasIbox": hasibox },
+            success: function (result) {
+            },
+            error: function (xhr) {
+            }
+
+        });
+    }
+
+    function Productivity(itemid, userid, hasProductivity) {
+
+        debugger;
+
+        var txt = '#txt_' + itemid + userid;
+
+        $.ajax({
+            type: "POST",
+            url: "/Departments/Productivity",
+            data: { "ItemId": itemid, "UserId": userid, "HasProductivity": hasProductivity },
+            success: function (result) {
+            },
+            error: function (xhr) {
+            }
+
+        });
+    }
+
+    function search() {
+        // Declare variables
+        var input, filter, ul, li, a, i;
+        input = document.getElementById('txtSearch');
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("lstDepartments");
+        li = ul.getElementsByTagName('li');
+
+        var isfound = false;
+
+        // Loop through all list items, and hide those who don't match the search query
+        for (i = 0; i < li.length; i++) {
+
+            a = li[i].getElementsByTagName("a")[0];
+
+            var tbody = document.getElementsByTagName("tbody");
+            var tr = tbody[0].getElementsByTagName("tr");
+
+            for (j = 0; j < tr.length; j++) {
+                var td = tr[j].getElementsByTagName("td");
+
+                if (td[0].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                    tr[j].style.display = "";
+                } else {
+                    tr[j].style.display = "none";
+                }
+            }
+
+            if (isfound) {
+                $('.collapse').collapse();
+
+                $('body').scrollspy({ target: a.href })
+            }
+
+        }
+    }
+
+    function filter() { 
+        var user = $('#cboUsers :selected').val();
+
+        if (user == "") {
+            $('#table tr').show();
+        } else {
+
+            $('#table tr td select').each(function () {
+                if ($(this).val() !== user) {
+                    $(this).parent().parent().hide();
+                } else if ($(this).val() == user) {
+                    $(this).parent().parent().show();
+                }
+            });
+        }
+    }
+</script>

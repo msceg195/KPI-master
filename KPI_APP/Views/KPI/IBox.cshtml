@@ -1,0 +1,526 @@
+﻿@{
+    ViewBag.Title = "IBox";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    var users = ViewBag.Users;
+    var operators = new string[] { ">", "<", ">=", "<=", "=", "LIKE", "BETWEEN" };
+    var aggregate = new string[] { "Avg", "Sum", "Count", "Max", "Min" };
+    var condition = new string[] { " AND ", " OR ", " ) " };
+
+    var KPI_Items = ViewBag.Grid as List<KPI_APP.Models.KPI_Item>;
+}
+
+<div class="body-content">
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-xs-12 col-12">
+            <label></label>
+            @Html.DropDownList("cboUser", new SelectList(ViewBag.Users, "UserID", "UserName"), "Choose User", new { @class = "form-control select js-example-basic-single", id = "cboUser", @onchange = "filter(this.value)" })
+        </div>
+
+        <div class="col-lg-6 col-md-6 col-xs-12 col-12">
+            <label></label>
+            @Html.DropDownList("cboKPI", new SelectList(ViewBag.KPIs, "Id", "Title", "Id"), "Choose KPI", new { @class = "form-control select js-example-basic-single", id = "cboKPI" })
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-xs-12 col-12">
+            <label>Table / View</label>
+            <input type="text" id="txtTable" class="form-control" />
+        </div>
+        <div class="col-lg-6 col-md-6 col-xs-12 col-12">
+            <label>Columns - <span class="text-danger"> Separated by comma (,)</span></label>
+            <input type="text" id="txtColumns" class="form-control" />
+        </div>
+    </div>
+    <br />
+    <div class="">
+        <table class="table table-bordered table-hover" id="tblParameters">
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Operator</th>
+                    <th>Value</th>
+                    <th>Value2</th>
+                    <th>Value2</th>
+                    <th>Add Parameter</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <input type="text" id="txtParameter" class="form-control" />
+                    </td>
+                    <td>
+                        @Html.DropDownList("Operator", new SelectList(operators), "Choose Operator", new { @class = "form-control select js-example-basic-single", id = "cboOperator" })
+                    </td>
+                    <td>
+                        <input type="text" id="txtValue" class="form-control" />
+
+                    </td>
+                    <td>
+                        <input type="text" id="txtValue2" class="form-control" />
+                    </td>
+                    <td>
+                        @Html.DropDownList("condition", new SelectList(condition), "Choose Condition", new { @class = "form-control select js-example-basic-single", id = "cboCondition" })
+                    </td>
+                    <td class="text-center">
+                        <a href="javascript:addRow()">
+                            <i class="fa fa-plus"></i>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <br />
+    <div class="row text-center">
+        <div class="col-lg-4 col-md-4 col-xs-12 col-4"></div>
+        <div class="col-lg-4 col-md-4 col-xs-12 col-4">
+            <a href="javascript:search()" title="Search" class="btn btn-success">
+                <i class="fa fa-search"></i> Search
+            </a>
+        </div>
+        <div class="col-lg-4 col-md-4 col-xs-12 col-4"></div>
+    </div>
+    <br />
+    <div class="card" id="">
+        <div class="card-body">
+            <div class="">
+                <table class="table table-bordered table-hover table-responsive" id="tblResult"></table>
+            </div>
+            <br />
+            <div class="row text-center">
+                <div class="col-lg-4 col-md-4 col-xs-8 col-8">
+                    @Html.DropDownList("Aggregate", new SelectList(aggregate), "Choose Aggregate", new
+                    {
+                        @class = "form-control select js-example-basic-single",
+                        id = "cboAggregate",
+                        @onchange = "calculate(this.value)"
+                    })
+                </div>
+                <div class="col-lg-4 col-md-4 col-xs-4 col-4">
+                    <a href="javascript:calculate(document.getElementById('cboAggregate').value)" class="btn btn-outline-success float-left">
+                        <i class="fas fa-sync"></i>
+                    </a>
+                    <label class="text-dark text-capitalize">Result</label>
+                    <strong class="text-dark text-capitalize" id="result"></strong>
+                </div>
+                <div class="col-lg-4 col-md-4 col-xs-12 col-12">
+                </div>
+                <div class="col-lg-4 col-md-4 col-xs-12 col-4">
+
+                </div>
+            </div>
+            <br />
+            <div class="row text-center">
+                <div class="col-lg-4 col-md-4 col-xs-8 col-8">
+                    <label class="text-dark text-capitalize" for="cboField">Date</label>
+                    <select id="cboField" class="form-control"></select>
+
+                </div>
+                <div class="col-lg-4 col-md-4 col-xs-5 col-5">
+
+                </div>
+                <div class="col-lg-4 col-md-4 col-xs-12 col-12">
+
+                </div>
+                <div class="col-lg-4 col-md-4 col-xs-12 col-4">
+
+                </div>
+            </div>
+            <br />
+            <div class="row text-center">
+                <div class="col-lg-4 col-md-4 col-xs-12 col-4"></div>
+                <div class="col-lg-4 col-md-4 col-xs-12 col-12">
+                    <a href="javascript:SaveQuery()" title="Submit" class="btn btn-primary">
+                        <i class="fa fa-paper-plane"></i> Submit
+                    </a>
+                </div>
+                <div class="col-lg-4 col-md-4 col-xs-12 col-4"></div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="">
+        <table class="table table-bordered table-hover" id="tblGrid">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>KPI</th>
+                    <th>Query</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (KPI_Items.Count == 0)
+                {
+                    <tr>
+                        <td class="text-center" colspan="3"> No Data</td>
+                    </tr>
+                }
+
+                @foreach (var item in KPI_Items)
+                {
+                    <tr>
+                        <td>
+                            <label>@item.Title</label>
+                        </td>
+                        <td>
+                            <label>@item.Query</label>
+                        </td>
+                        <td class="text-center">
+                            <a href="javascript:getQuery(@item.Id)">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<div id="overlay">
+
+    <h2 class="text-md-center text-light m-5">Please wait ...</h2>
+
+</div>
+
+@{
+    var date = /*DateTime.Now.Day > 15 ? DateTime.Now :*/ DateTime.Now.AddMonths(-1);
+
+    var fDate = new DateTime(date.Year, date.Month, 1).ToShortDateString();
+    var lDate = new DateTime(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month)).ToShortDateString();
+}
+<script type="text/javascript">
+    // TODO: Submit KPI to IBOX
+    $('.card').hide();
+    $('#overlay').hide();
+
+    function search() {
+        var user = $('#cboUser').val();
+        var kpi = $('#cboKPI').val();
+
+        var table = $('#txtTable').val();
+        var columns = $('#txtColumns').val();
+        var parameters = "";
+        for (var i = 0; i < $('#tblParameters tbody tr').length; i++) {
+
+            var tr = $('#tblParameters tbody tr')[i];
+            var pname = $(tr).children('td').eq(0).find('#txtParameter').val();
+            var operator = $(tr).children('td').eq(1).find('#cboOperator').val();
+            var value = $(tr).children('td').eq(2).find('input').val();
+            var value2 = $(tr).children('td').eq(3).find('input').val();
+            var condition = $(tr).children('td').eq(4).find('#cboCondition').val();
+
+            if (operator == "BETWEEN") {
+                parameters += pname + " " + operator + " UPPER('" + value + "')" + " AND UPPER('" + value2 + "')" +
+
+                (i == $('#tblParameters tbody tr').length - 1 ? "" : " " + condition + " ");
+            }
+            else {
+                if (pname !== '') {
+                    parameters += pname + " " + operator +
+                    (operator == "LIKE" ? " UPPER('%" : "UPPER('") + value +
+                    (operator == "LIKE" ? "%')" : "')") +
+                    (i == $('#tblParameters tbody tr').length - 1 ? "" : " " + condition + " ");
+                }
+            }
+        }
+
+        //parameters += " AND ROWNUM = 10 ";
+
+        var query = "SELECT " + columns + " FROM " + table + " WHERE " + parameters;
+
+        $('#overlay').show();
+
+        $.ajax({
+            type: "POST",
+            url: "/KPI/Query",
+            dataType: 'json',
+            data: { "Statement": query },
+            success: function (result) {
+                buildHtmlTable(result, "#tblResult");
+
+                $("#tblResult thead th").append('<input type="checkbox" />');
+
+                $('#overlay').hide();
+            },
+            error: function (xhr) {
+                console.log(xhr);
+            }
+        });
+    }
+
+    function addRow() {
+        var $tr = $('#tblParameters tr:last');
+        var $clone = $tr.clone();
+        $('#tblParameters').append($clone);
+    }
+
+    function buildHtmlTable(myList, selector) {
+        $("#tblResult").html('');
+
+        var columns = addAllColumnHeaders(myList, selector);
+
+        for (var i = 0; i < myList.length; i++) {
+            var row$ = $('<tr/>');
+            for (var colIndex = 0; colIndex < columns.length; colIndex++) {
+                var cellValue = myList[i][columns[colIndex]];
+                if (cellValue == null) cellValue = "";
+                row$.append($('<td/>').html(cellValue));
+            }
+            $(selector).append(row$);
+        }
+
+        var keys = [];
+        keys.push("<option value=''></option>");
+
+        for (var colIndex = 0; colIndex < columns.length; colIndex++) {
+            keys.push("<option value=''>" + columns[colIndex] + "</option>");
+        }
+
+        $('#cboField').html(keys);
+        $('#overlay').hide();
+        $('.card').show();
+    }
+
+    function addAllColumnHeaders(myList, selector) {
+        var columnSet = [];
+        var headerTr$ = $('<tr/>');
+
+        for (var i = 0; i < myList.length; i++) {
+            var rowHash = myList[i];
+            for (var key in rowHash) {
+                if ($.inArray(key, columnSet) == -1) {
+                    columnSet.push(key);
+                    headerTr$.append($('<th/>').html(key).prepend('<input type="checkbox" value="' + key + '" />'));
+                }
+            }
+        }
+
+        $(selector).append(headerTr$);
+
+        return columnSet;
+    }
+
+    function calculate(type) {
+
+        if (type == "") return false;
+
+        var column = $("#tblResult tr:first th input[type='checkbox']:checked")[0];
+        if (column == undefined) return false;
+
+        var parameters = "";
+        for (var i = 0; i < $('#tblParameters tbody tr').length; i++) {
+
+            var tr = $('#tblParameters tbody tr')[i];
+            var pname = $(tr).children('td').eq(0).find('#txtParameter').val();
+            var operator = $(tr).children('td').eq(1).find('#cboOperator').val();
+            var value = $(tr).children('td').eq(2).find('input').val();
+            parameters += pname + " " + operator + " " + value;
+        }
+        var table = $('#txtTable').val();
+
+        var query = "SELECT " + type + "(" + column.value + ")" + " FROM " + table + " WHERE " + parameters;
+
+        $.ajax({
+            type: "POST",
+            url: "/KPI/Calculate",
+            dataType: 'json',
+            data: { "Aggregate": type + "(" + column.value + ")" },
+            success: function (data) {
+                $('#result').text(data);
+            },
+            error: function (xhr) {
+                console.log(xhr);
+            }
+        });
+    }
+
+    function SaveQuery() {
+
+        var type = $('#cboAggregate').val();
+
+        if (type == "") return false;
+
+        if ($('#cboKPI').val() == "") {
+            alert("Choose KPI");
+            return false;
+        }
+        var column = $("#tblResult tr:first th input[type='checkbox']:checked")[0];
+        if (column == undefined) return false;
+
+        var parameters = "";
+        var params = [];
+
+        for (var i = 0; i < $('#tblParameters tbody tr').length; i++) {
+
+            var tr = $('#tblParameters tbody tr')[i];
+            var pname = $(tr).children('td').eq(0).find('#txtParameter').val();
+            var operator = $(tr).children('td').eq(1).find('#cboOperator').val();
+            var value = $(tr).children('td').eq(2).find('input').val();
+            var value2 = $(tr).children('td').eq(3).find('input').val();
+            var condition = $(tr).children('td').eq(4).find('#cboCondition').val();
+
+            if (operator == "BETWEEN") {
+                parameters += pname + " " + operator + " UPPER('" + value + "')" + " AND UPPER('" + value2 + "')" +
+
+                (i == $('#tblParameters tbody tr').length - 1 ? "" : " " + condition + " ");
+            }
+            else {
+                if (pname !== ''){
+                parameters += pname + " " + operator +
+                    (operator == "LIKE" ? " UPPER('%" : "UPPER('") + value +
+                    (operator == "LIKE" ? "%')" : "')") +
+                    (i == $('#tblParameters tbody tr').length - 1 ? "" : " " + condition + " ");
+                }
+            }
+
+            var param = new Object();
+            param.Param_Name = pname;
+            param.Operator = operator;
+            param.Param_Value = value;
+            param.KPI_ID = $('#cboKPI').val();
+
+            params.push(param);
+        }
+
+        var table = $('#txtTable').val();
+
+        var query = "SELECT " + type + "(" + column.value + ")" + " FROM " + table + " WHERE " + parameters;
+
+        if ($('#cboField :selected').text() !== '') {
+            //ETA BETWEEN TO_DATE ( '01/02/2018' , 'DD/MM/YYYY' ) AND TO_DATE ( '05/02/2018 23:59:59' , 'DD/MM/YYYY HH24:MI:SS' )
+            query += " AND " + $('#cboField :selected').text() + " BETWEEN TO_DATE ('" + "@fDate" + "' , 'MM/DD/YYYY' )  AND  TO_DATE ('" + "@lDate" + " 23:59:59' , 'MM/DD/YYYY HH24:MI:SS');";
+        }
+
+        debugger;
+
+        $.ajax({
+            type: "POST",
+            url: "/KPI/SaveQuery",
+            dataType: 'json',
+            data: {
+                "UserID":$('#cboUser').val(),
+                "KPI_Id": $('#cboKPI').val(),
+                "Query": query,
+                "Fields": $('#txtColumns').val(),
+                "Table_View": $('#txtTable').val(),
+                "Type": $('#cboAggregate').val(),
+                "Parameters": params
+            },
+            success: function (data) {
+
+            },
+            error: function (xhr) {
+                console.log(xhr);
+            }
+        });
+    }
+
+    function filter(id) {
+
+        $('#cboKPI').attr('disabled', 'disabled');
+
+        $.ajax({
+            type: "POST",
+            url: "/KPI/Filter",
+            dataType: 'json',
+            data: {
+                "Id": id
+            },
+            success: function (data) {
+
+                var elements = [];
+                elements.push($("<option value=''>Choose KPI</option>"));
+
+                for (var i = 0 ; i < data.length ; i++) {
+                    var item = data[i];
+
+                    elements.push(  $("<option value='" + item.Id + "'>" + item.Title + "</option>"));
+                }
+                $('#cboKPI').html(elements);
+                $('#cboKPI').removeAttr('disabled');
+            },
+            error: function (xhr) {
+                console.log(xhr);
+            }
+        });
+
+    }
+
+    function getQuery(id) {
+
+        $('#cboKPI').attr('disabled', 'disabled');
+
+        $.ajax({
+            type: "POST",
+            url: "/KPI/GetQuery",
+            dataType: 'json',
+            data: {
+                "Id": id
+            },
+            success: function (data) {
+                debugger;
+
+                $('#cboUser').val(data.UserID);
+                $('#txtTable').val(data.Table_View);
+                $('#txtColumns').val(data.Fields);
+
+                for (var i = 0; i < data.Parameters.length;i ++){
+                    var $tr = $('#tblParameters tr:last');
+                    var $clone = $tr.clone();
+
+                    $tr.children('td').eq(0).find('#txtParameter').val(data.Parameters[i].Param_Name);
+                    $tr.children('td').eq(1).find('#cboOperator').val(data.Parameters[i].Operator);
+                    $tr.children('td').eq(2).find('input').val(data.Parameters[i].Param_Value);
+
+                   $('#tblParameters').append($clone);
+                }
+
+                var kpiid = data.Id;
+
+                $.ajax({
+                    type: "POST",
+                    url: "/KPI/Filter",
+                    dataType: 'json',
+                    data: {
+                        "Id": data.UserID
+                    },
+                    success: function (data) {
+
+                        var elements = [];
+                        elements.push($("<option value=''>Choose KPI</option>"));
+
+                        for (var i = 0 ; i < data.length ; i++) {
+                            var item = data[i];
+
+                            elements.push($("<option value='" + item.Id + "'>" + item.Title + "</option>"));
+                        }
+
+                        $('#cboKPI').html(elements);
+                        $('#cboKPI').removeAttr('disabled');
+
+                        $('#cboKPI').val(kpiid);
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+
+
+
+            },
+            error: function (xhr) {
+                console.log(xhr);
+            }
+        });
+
+    }
+
+</script>

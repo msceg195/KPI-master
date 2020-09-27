@@ -1,0 +1,182 @@
+﻿<canvas id="myChart" style="min-width:1920px;min-height:1050px;" height="1050" width="1920"></canvas>
+
+<script src="/Scripts/jquery.min.js"></script>
+
+<script src="/Scripts/Chart.min.js" type="text/javascript"></script>
+
+
+<script type="text/javascript">
+
+    $.ajax({
+        type: "POST",
+        url: "/Reports/KPI_Productivity",
+        data: null,
+        success: function (result) {
+            loadChart(result);
+        },
+        error: function (xhr) {
+        }
+    });
+
+    function send(canvas) {
+        var canvas = document.getElementById("myChart");
+        //$.ajax({
+        //    type: "POST",
+        //    url: "/Reports/Send",
+        //    data: { base64String: canvas.toDataURL() },
+        //    success: function (result) {
+
+        //    },
+        //    error: function (xhr) { }
+        //});
+    }
+
+    function loadChart(data) {
+
+        var colors = ["#36a2eb", "#ff6384", "#ffd778", "#6fcdcd", "#ccdeee", "#343639"]
+
+
+        var ctx = document.getElementById("myChart").getContext('2d');
+
+        var labels = [];
+        var values = [];
+        var finshed = [];
+
+        for (var i = 0; i < data.length; i++) {
+            labels.push(data[i]["Remarks"]);
+            values.push(data[i]["Jan"]);
+            values.push(data[i]["Feb"]);
+            values.push(data[i]["Mar"]);
+            values.push(data[i]["Apr"]);
+            values.push(data[i]["May"]);
+            values.push(data[i]["Jun"]);
+            values.push(data[i]["Jul"]);
+            values.push(data[i]["Aug"]);
+            values.push(data[i]["Sep"]);
+            values.push(data[i]["Oct"]);
+            values.push(data[i]["Nov"]);
+            values.push(data[i]["Dec"]);
+        }
+
+        debugger;
+
+        var _datasets = [];
+
+        for (var i = 0; i < labels.length; i++) {
+            _datasets.push({
+                label: '',
+                data: [values.push(data[i]["Jan"]),
+                values.pop(data[i]["Feb"]),
+                values.pop(data[i]["Mar"]),
+                values.pop(data[i]["Apr"]),
+                values.pop(data[i]["May"]),
+                values.pop(data[i]["Jun"]),
+                values.pop(data[i]["Jul"]),
+                values.pop(data[i]["Aug"]),
+                values.pop(data[i]["Sep"]),
+                values.pop(data[i]["Oct"]),
+                values.pop(data[i]["Nov"]),
+                values.pop(data[i]["Dec"])],
+                borderDash: [0, 0],
+                pointRadius: 5,
+                responsive: false,
+                maintainAspectRatio: true,
+                backgroundColor: colors[i],
+                borderColor: colors[i],
+                fill: false,
+                borderWidth: 0
+            });
+        }
+
+        var chartOptions = {
+            scales: {
+                xAxes: [{
+                    barPercentage: 1,
+                    stacked: true,
+                    categoryPercentage: 0.6
+                }],
+                yAxes: [{
+                    id: "y-axis-density",
+                    stacked: true,
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+            animation: {
+                onComplete: function (animation) {
+                    send();
+                }
+            },
+            showAllTooltips: true
+        };
+
+        Chart.plugins.register({
+            beforeDraw: function (chartInstance) {
+                var ctx = chartInstance.chart.ctx;
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, chartInstance.chart.width, chartInstance.chart.height);
+            },
+            afterDraw: function (chartInstance) {
+            }
+        });
+
+        Chart.pluginService.register({
+            beforeRender: function (chart) {
+                if (chart.config.options.showAllTooltips) {
+                    // create an array of tooltips
+                    // we can't use the chart tooltip because there is only one tooltip per chart
+                    chart.pluginTooltips = [];
+                    chart.config.data.datasets.forEach(function (dataset, i) {
+                        chart.getDatasetMeta(i).data.forEach(function (sector, j) {
+                            chart.pluginTooltips.push(new Chart.Tooltip({
+                                _chart: chart.chart,
+                                _chartInstance: chart,
+                                _data: chart.data,
+                                _options: chart.options.tooltips,
+                                _active: [sector]
+                            }, chart));
+                        });
+                    });
+
+                    // turn off normal tooltips
+                    chart.options.tooltips.enabled = false;
+                }
+            },
+            afterDraw: function (chart, easing) {
+                if (chart.config.options.showAllTooltips) {
+                    // we don't want the permanent tooltips to animate, so don't do anything till the animation runs atleast once
+                    if (!chart.allTooltipsOnce) {
+                        if (easing !== 1)
+                            return;
+                        chart.allTooltipsOnce = true;
+                    }
+
+                    // turn on tooltips
+                    chart.options.tooltips.enabled = true;
+                    Chart.helpers.each(chart.pluginTooltips, function (tooltip) {
+                        tooltip.initialize();
+                        tooltip.update();
+                        // we don't actually need this since we are not animating tooltips
+                        tooltip.pivot();
+                        tooltip.transition(easing).draw();
+                    });
+                    chart.options.tooltips.enabled = false;
+                }
+            }
+        })
+
+        myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                datasets: _datasets
+            },
+            options: chartOptions
+        });
+    }
+
+    $(document).ready(function () {
+        $('header').hide();
+    });
+</script> 

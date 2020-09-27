@@ -1,0 +1,50 @@
+﻿
+<div id="mySidenav" class="sidenav bg-dark" role="navigation">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+
+    <ul class="list-group">
+
+        <li class="list-group-item">
+            <a href="~/"><i class="fas fa-home"></i>  Home</a>
+        </li>
+        @if (User.IsInRole("Admin"))
+        {
+            <li class="list-group-item">
+                <a href="~/KPI/index"><i class="fa fa-chart-bar"></i>  KPI</a>
+            </li>
+
+            <li class="list-group-item">
+                <a href="~/Departments/index"><i class="fa fa-cubes"></i> Departments</a>
+            </li>
+            <li class="list-group-item">
+                <a href="~/Departments/Users/"><i class="fa fa-users"></i> Users</a>
+            </li>
+            <li class="list-group-item">
+                <a href="~/Departments/Manage/"><i class="fas fa-cogs"></i> Manage</a>
+            </li>
+            <li class="list-group-item">
+                <a href="~/KPI/IBox/"><i class="fas fa-cog"></i> Ibox</a>
+            </li>
+
+        }
+        <li class="list-group-item">
+            <a href="~/Reports/"><i class="fas fa-file"></i> Reports</a>
+        </li>
+        <li class="list-group-item">
+            <a href="~/Account/ResetPassword"><i class="fa fa-key"></i>  Reset Password</a>
+        </li>
+
+    </ul>
+</div>
+
+<script>
+    /* Set the width of the side navigation to 250px */
+    function openNav() {
+        document.getElementById("mySidenav").style.width = "300px";
+    }
+
+    /* Set the width of the side navigation to 0 */
+    function closeNav() {
+        document.getElementById("mySidenav").style.width = "0";
+    }
+</script>

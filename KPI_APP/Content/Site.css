@@ -1,0 +1,275 @@
+﻿body {
+    display: -ms-flexbox;
+    display: -webkit-box;
+    display: flex;
+    -ms-flex-align: center;
+    -ms-flex-pack: center;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+    font-size: 14pt;
+}
+
+.chosen-container {
+    width: 300px !important;
+}
+
+.body-content {
+    margin: 100px;
+}
+
+.btn-block {
+    color: #fff !important;
+}
+
+.table {
+    margin-bottom: 0 !important;
+}
+
+hr {
+    border: solid 2px #ffc107;
+}
+
+.container {
+    margin: 50px auto;
+}
+
+.light {
+    background-color: #f5f5f5 !important;
+    color: #212529 !important;
+}
+
+header {
+    background-color: #FECB00;
+    padding: 25px 10px;
+    margin: 0 auto;
+}
+
+table thead tr:first-child {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+th {
+    text-align: center;
+}
+
+tr {
+    font-size: 12pt;
+}
+
+    tr:hover {
+        color: #FECB00;
+        font-size: 12pt;
+    }
+
+.fixed {
+    position: fixed;
+    bottom: 0;
+    color: #fecb00;
+    left: 0;
+    right: 0;
+}
+
+.today {
+    color: #FECB00 !important;
+}
+
+label {
+    word-wrap: normal;
+    min-width: 200px !important;
+}
+
+#loader {
+    position: absolute;
+    left: 50%;
+    top: 70%;
+    z-index: 1;
+    margin: -75px 0 0 -75px;
+    border: 10px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 10px solid #fecb00;
+    border-bottom: 10px solid #fecb00;
+    width: 120px;
+    height: 120px;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Add animation to "page content" */
+.animate-bottom {
+    position: relative;
+    -webkit-animation-name: animatebottom;
+    -webkit-animation-duration: 1s;
+    animation-name: animatebottom;
+    animation-duration: 1s
+}
+
+@-webkit-keyframes animatebottom {
+    from {
+        bottom: -100px;
+        opacity: 0
+    }
+
+    to {
+        bottom: 0;
+        opacity: 1
+    }
+}
+
+@keyframes animatebottom {
+    from {
+        bottom: -100px;
+        opacity: 0
+    }
+
+    to {
+        bottom: 0;
+        opacity: 1
+    }
+}
+
+#myDiv {
+    display: none;
+    text-align: center;
+}
+
+.container-fluid {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+
+/* menu */
+
+.sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    right: 0;
+    overflow-x: hidden;
+    transition: 0.5s;
+}
+
+    .sidenav a {
+        padding: 0 5px;
+        text-decoration: none;
+        font-size: 25px;
+        color: #343a40;
+        display: block;
+        transition: 0.3s;
+        text-align: left;
+    }
+
+        .sidenav a:hover {
+            color: #ffc107;
+        }
+
+    .sidenav .closebtn {
+        font-size: 36px;
+        color: #f1f1f1;
+    }
+
+#main {
+    transition: margin-left .5s;
+}
+
+@media screen and (max-height: 450px) {
+    .sidenav {
+        padding-top: 15px;
+    }
+
+        .sidenav a {
+            font-size: 18px;
+        }
+}
+
+
+
+.list-group-item:first-child {
+    border-radius: 0 !important;
+}
+
+.btn-group-vertical > .btn:first-child:not(:last-child) {
+    border-radius: 0 !important;
+}
+
+.list-group-item:last-child {
+    border-radius: 0 !important;
+}
+
+.btn-group-vertical > .btn:last-child:not(:first-child) {
+    border-radius: 0 !important;
+}
+
+.list-group {
+    margin: auto 5px;
+}
+
+.list-group-item {
+    padding: 10px;
+}
+
+.btn-group-vertical {
+    width: 100%;
+}
+
+.form-signin, #form-signin {
+    width: 100%;
+    max-width: 420px;
+    padding: 15px;
+    margin: 0 auto;
+    /*background-color: #f5f5f5;*/
+}
+
+input {
+    padding: 5px !important;
+}
+
+    input[type="checkbox"] {
+        color: #f5f5f5;
+    }
+
+@media screen and (max-height: 450px) {
+    .body-content {
+        margin: auto 20px !important;
+    }
+}
+
+#overlay {
+    position: fixed; /* Sit on top of the page content */
+    display: none; /* Hidden by default */
+    width: 100%; /* Full width (cover the whole page) */
+    height: 100%; /* Full height (cover the whole page) */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+    z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+    cursor: pointer; /* Add a pointer on hover */
+}

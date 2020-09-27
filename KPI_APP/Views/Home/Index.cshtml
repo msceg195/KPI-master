@@ -1,0 +1,323 @@
+﻿@model IEnumerable<KPI_APP.Models.KPI_Item>
+
+@{
+    var date = (DateTime)ViewBag.Date;
+}
+
+
+@if (string.IsNullOrEmpty(ViewBag.Success))
+{
+    <div class="alert alert-success" style="display:none;">Save Successful</div>
+}
+
+
+@if (string.IsNullOrEmpty(ViewBag.Error))
+{
+    <div class="alert alert-danger" style="display:none;">Save Faild</div>
+}
+
+<p></p>
+
+<div class="body-content">
+
+    @if (!string.IsNullOrEmpty(ViewBag.Error))
+    {
+        <div class="alert alert-danger">
+            <h4>@ViewBag.Error</h4>
+        </div>
+    }
+
+    <form class="form-inline text-center">
+        <div class="col-12 col-lg-8 col-md-12 col-sm-12">
+            <h4 class="alert alert-warning"><i class="fas fa-calendar-alt"></i> Year : @date.Year - Month : @date.Month</h4>
+        </div>
+        <div class="col-2 col-lg-2 col-md-6 col-sm-12">
+            <a onclick="save(); return false;" class="btn btn-success mb-2 btn-block">
+                <i class="fa fa-save"></i> Save
+            </a>
+        </div>
+        <div class="col-2 col-lg-2 col-md-6 col-sm-12">
+            <a onclick="save(true); return false;" class="btn btn-primary mb-2 btn-block">
+                <i class="fa fa-upload"></i> Submit & Close
+            </a>
+        </div>
+    </form>
+
+    <p></p>
+
+    <div class="form-group" style="overflow-y:auto;">
+
+        @if (Model.Count() > 0)
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Title</th>
+                        <th>Remarks</th>
+                        <th>KPI Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <label>
+                                    @item.Excel_Department.Name
+                                </label>
+                                <input type="hidden" value="@item.Id" />
+                            </td>
+                            <td>
+                                <label>
+                                    @item.Title
+                                    <input type="hidden" value="@item.Row" />
+                                </label>
+                            </td>
+                            <td>
+                                <label>@item.Remarks</label>
+                            </td>
+
+                            @{ var format = item.Format == "time" ? "type=text" : "type=number"; }
+
+                            @if (date.Month == 1)
+                            {
+                                <td><input type="text" value="@item.Jan" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 2)
+                            {
+                                <td><input type="text" value="@item.Feb" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 3)
+                            {
+                                <td><input type="text" value="@item.Mar" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 4)
+                            {
+                                <td><input type="text" value="@item.Apr" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 5)
+                            {
+                                <td><input type="text" value="@item.May" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 6)
+                            {
+                                <td><input type="text" value="@item.Jun" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 7)
+                            {
+                                <td><input type="text" value="@item.Jul" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 8)
+                            {
+                                <td><input type="text" value="@item.Aug" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 9)
+                            {
+                                <td><input type="text" value="@item.Sep" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 10)
+                            {
+                                <td><input type="text" value="@item.Oct" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 11)
+                            {
+                                <td><input type="text" value="@item.Nov" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 12)
+                            {
+                                <td><input type="text" value="@item.Dec" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <div class="form-group" style="overflow-y:auto;">
+        @{ var items = ViewBag.Items as List<KPI_APP.Models.KPI_Item>;}
+        @if (items != null && items.Count() > 0)
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Department</th>
+                        <th>Title</th>
+                        <th>Remarks</th>
+                        <th>KPI Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <label>
+                                    @item.Excel_Department.Name
+                                </label>
+                                <input type="hidden" value="@item.Id" />
+                            </td>
+                            <td>
+                                <label>
+                                    @item.Title
+                                    <input type="hidden" value="@item.Row" />
+                                </label>
+                            </td>
+                            <td>
+                                <label>@item.Remarks</label>
+                            </td>
+
+                            @{ var format = item.Format == "time" ? "type=text" : "type=number"; }
+
+                            @if (date.Month == 1)
+                            {
+                                <td><input type="text" value="@item.Jan" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 2)
+                            {
+                                <td><input type="text" value="@item.Feb" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 3)
+                            {
+                                <td><input type="text" value="@item.Mar" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 4)
+                            {
+                                <td><input type="text" value="@item.Apr" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 5)
+                            {
+                                <td><input type="text" value="@item.May" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 6)
+                            {
+                                <td><input type="text" value="@item.Jun" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 7)
+                            {
+                                <td><input type="text" value="@item.Jul" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 8)
+                            {
+                                <td><input type="text" value="@item.Aug" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 9)
+                            {
+                                <td><input type="text" value="@item.Sep" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 10)
+                            {
+                                <td><input type="text" value="@item.Oct" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 11)
+                            {
+                                <td><input type="text" value="@item.Nov" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                            @if (date.Month == 12)
+                            {
+                                <td><input type="text" value="@item.Dec" class="form-control" required @(!item.HasIbox ? "" : "disabled='disabled'") /></td>
+                            }
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+
+<div class="modal fade" tabindex="-1" role="dialog" id="myModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h3 class="modal-title">Please wait ...</h3>
+
+                <div class="progress">
+                    <div class="progress-bar progress-bar-animated progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="10" aria-valuemax="100" style="width: 45%">
+                        <span class="sr-only">45% Complete</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function save(isClose) {
+        var rows = [];
+
+        $('table tbody tr').not(':hidden').each(function () {
+
+            if ($(this).find('td:eq(1) input') == null ||
+                $(this).find('td:eq(1) input') == undefined) return true;
+
+            rows.push({
+                Id: $.trim($(this).find('td:eq(0) input').val()),
+                Row: $.trim($(this).find('td:eq(1) input').val()),
+                Title: $.trim($(this).find('td:eq(1) label').text()),
+                Department: $.trim($(this).find('td:eq(0) label').text()),
+                Remarks: $.trim($(this).find('td:eq(2) label').text()),
+                Jan: $.trim($(this).find('td:eq(3) input').val()),
+                Feb: $.trim($(this).find('td:eq(4) input').val()),
+                Mar: $.trim($(this).find('td:eq(5) input').val()),
+                Apr: $.trim($(this).find('td:eq(6) input').val()),
+                May: $.trim($(this).find('td:eq(7) input').val()),
+                Jun: $.trim($(this).find('td:eq(8) input').val()),
+                Jul: $.trim($(this).find('td:eq(9) input').val()),
+                Aug: $.trim($(this).find('td:eq(10) input').val()),
+                Sep: $.trim($(this).find('td:eq(11) input').val()),
+                Oct: $.trim($(this).find('td:eq(12) input').val()),
+                Nov: $.trim($(this).find('td:eq(13) input').val()),
+                Dec: $.trim($(this).find('td:eq(14) input').val())
+            });
+        });
+
+        if (rows.length == 0) return false;
+
+        $.ajax({
+            type: "POST",
+            url: "/Home/Save",
+            data: { "Items": rows, "IsClose": isClose },
+            success: function (result) {
+                $('.alert-success').show();
+                $('.alert-danger').hide();
+
+                if (isClose) window.location = window.location;
+            },
+            error: function (xhr) {
+                $('.alert-danger').show();
+                $('.alert-success').hide();
+            }
+        });
+    }
+
+</script>

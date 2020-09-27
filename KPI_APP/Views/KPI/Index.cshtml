@@ -1,0 +1,311 @@
+﻿@model IEnumerable<KPI_APP.Models.KPI>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card m-5">
+    <div class="card-body">
+        @if (!string.IsNullOrEmpty(ViewBag.Error))
+        {
+            <div class="alert alert-danger">
+                <h4>@ViewBag.Error</h4>
+            </div>
+        }
+
+        <div class="alert alert-warning">Please upload KPI file</div>
+        @using (Ajax.BeginForm("UploadFile", "KPI", null, new AjaxOptions() { HttpMethod = "POST" }, new { enctype = "multipart/form-data", @class = "form-inline" }))
+        {
+            <div class="card">
+                <div class="card-body">
+                    <div class="input-group mb-3">
+                        <div class="custom-file">
+                            @Html.TextBox("file", "", new { type = "file", @class = "custom-file-input", id = "inputGroupFile02" })
+
+                            <label class="custom-file-label" for="inputGroupFile02">Choose file</label>
+                        </div>
+                        <div class="input-group-append">
+                            <input type="submit" value="Upload" class="input-group-text btn-outline-warning" />
+                        </div>
+                    </div>
+                    @ViewBag.Message
+                </div>
+            </div>
+        }
+
+        <hr />
+
+        <div class="progress">
+            <div class="progress-bar progress-bar-animated progress-bar-striped active"
+                 role="progressbar" aria-valuenow="45" aria-valuemin="10" aria-valuemax="100" style="width: 0%">
+                <span class="sr-only">45% Complete</span>
+            </div>
+        </div>
+
+        <table class="table">
+            <tr>
+                <th>
+                    Title
+                </th>
+                <th>
+                    Create Date
+                </th>
+                <th>
+                    KPI Year
+                </th>
+                <th>
+                    KPI Month
+                </th>
+                <th></th>
+            </tr>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <a href="javascript:Download(@item.Id)" class="btn btn-link"><i class="fas fa-file-alt"></i>  @Html.DisplayFor(modelItem => item.Title)</a>
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.CreateDate)
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.KPI_Year)
+                    </td>
+                    <td class="text-center">
+                        @Html.DisplayFor(modelItem => item.KPI_Month)
+                    </td>
+                    <td class="text-center">
+                        <a href="javascript: Download(@item.Id)" class="btn btn-outline-info">
+                            <i class="fa fa-download"></i> Download
+                        </a>
+
+                        <a href="javascript: progress(@item.Id)" class="btn btn-outline-danger">
+                            <i class="fa fa-chart-line"></i> Chart
+                        </a>
+
+                        <a href="javascript: send()" class="btn btn-outline-success">
+                            <i class="fa fa-envelope"></i> Send
+                        </a>
+
+                        <a href="javascript: copySheet(@item.Id)" class="btn btn-outline-primary">
+                            <i class="fa fa-copy"></i> Copy
+                        </a>
+                    </td>
+                </tr>
+            }
+
+        </table>
+        <canvas id="myChart"></canvas>
+    </div>
+</div>
+
+<img id="result" src="" download="img.jpg" hidden />
+
+<script src="~/Scripts/html2canvas.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+    var myChart;
+
+    function showProgress() {
+        $('.progress').show();
+
+        var width = 10;
+
+        setInterval(function () {
+
+            width += 10;
+
+            $('.progress-bar').css('width', width + "px");
+
+        }, 100);
+    }
+
+    $('.progress').hide();
+
+    function Download(id) {
+
+        showProgress();
+
+        $('.btn').css('cursor','not-allowed').css('pointer-events','none');
+
+        $.ajax({
+            type: "POST",
+            url: "/KPI/Download",
+            data: { "Id": id },
+            success: function (result) {
+
+                debugger;
+
+                window.location.href = result;
+
+                $('#myModal').modal('hide');
+                $('.alert-success').show();
+                $('.alert-danger').hide();
+
+                $('.progress').hide();
+
+                $('.btn').css('cursor', '').css('pointer-events', '');
+
+            },
+            error: function (xhr) {
+
+
+                debugger;
+                $('#myModal').modal('hide');
+                $('.alert-danger').show();
+                $('.alert-success').hide();
+            }
+        });
+    }
+
+    function progress(id) {
+
+        showProgress();
+
+        $('.btn').css('cursor', 'not-allowed').css('pointer-events', 'none');
+
+        $.ajax({
+            type: "POST",
+            url: "/KPI/Progress",
+            data: { "Id": id },
+            success: function (result) {
+
+                loadChart(result);
+
+                $('.alert-success').show();
+
+                $('.alert-danger').hide();
+
+                $('.progress').hide();
+
+                $('.btn').css('cursor', '').css('pointer-events', '');
+
+                $('html, body').animate({
+                    scrollTop: $('#myChart').offset().top
+                }, 800);
+
+            },
+            error: function (xhr) {
+
+                $('#myModal').modal('hide');
+                $('.alert-danger').show();
+                $('.al ert-success').hide();
+            }
+        });
+    }
+
+    function loadChart(data) {
+
+        var ctx = document.getElementById("myChart").getContext('2d');
+
+        var labels = [];
+        var values = [];
+        var finshed = [];
+        for (var i = 0; i < data.length; i++) {
+            labels.push(data[i]["name"]);
+            values.push(data[i]["count"]);
+            finshed.push(data[i]["done"]);
+        }
+
+        var chartOptions = {
+            scales: {
+                xAxes: [{
+                    barPercentage: 1,
+                    categoryPercentage: 0.6
+                }],
+                yAxes: [{
+                    id: "y-axis-density",
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        };
+
+        if (myChart !== undefined) myChart.destroy();
+
+        Chart.plugins.register({
+            beforeDraw: function (chartInstance) {
+                var ctx = chartInstance.chart.ctx;
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, chartInstance.chart.width, chartInstance.chart.height);
+            }
+        });
+
+         myChart = new Chart(ctx, {
+             type: 'bar',
+             data: {
+                labels: labels,
+                datasets: [{
+                    label: '# of KPI',
+                    data: values,
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    backgroundColor: 'gray',
+                    borderColor: "gray",
+
+                    borderWidth: 0,
+                    easing: 'easeInSine'
+                }, {
+                    label: '# of Finished',
+                    data: finshed,
+                    backgroundColor: '#ffc107',
+                    borderColor: '#ffc107',
+                    borderWidth: 0,
+                    easing: 'easeInSine'
+                }]
+            },
+            options: chartOptions
+        });
+    }
+
+    function send() {
+
+        var canvas = document.getElementById("myChart");
+
+        // var img = canvas.toDataURL("image/jpg");
+        //$("#result").attr("src", img);
+        //var a = document.createElement('a');
+        //var linkText = document.createTextNode("my title text");
+        //a.appendChild(linkText);
+        //a.title = "my title text";
+        //a.href = img;
+        //a.href = canvas.toDataURL();
+        //a.download = "test.jpg";
+
+        //document.body.appendChild(a);
+        //a.click();
+
+        //html2canvas(document.querySelector("#myChart"), {"background-color":"red"}).then(canvas => {
+        //    document.body.appendChild(canvas)
+
+        //});
+
+        $.ajax({
+            type: "POST",
+            url: "/KPI/Send",
+            data: { base64String: canvas.toDataURL() },
+            success: function (result) {
+                loadChart(result);
+            },
+            error: function (xhr) { }
+        });
+    }
+
+    function copySheet(id) {
+
+        $.ajax({
+            type: "POST",
+            url: "/KPI/CopySheet",
+            data: { "Id": id },
+            success: function (result) {
+                window.location.href = window.location.href;
+
+            },
+            error: function (xhr) {
+
+            }
+        });
+    }
+</script>
